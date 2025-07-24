@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 import time
 import threading
+import socket
 
 class RemoteMQTTClient:
     def __init__(self, client_id, broker_host='192.168.0.76', broker_port=1883):
@@ -15,17 +16,39 @@ class RemoteMQTTClient:
         self.connection_event = threading.Event()
         self.running = False
         
+        # 로컬 IP 주소 가져오기
+        self.local_ip = self.get_local_ip()
+        
         # 콜백 함수 설정
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.client.on_message = self.on_message
         self.client.on_subscribe = self.on_subscribe
         self.client.on_publish = self.on_publish
+    
+    def get_local_ip(self):
+        """로컬 IP 주소 가져오기"""
+        try:
+            # 외부 연결을 통해 로컬 IP 확인
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+            return local_ip
+        except Exception:
+            try:
+                # 대안 방법
+                hostname = socket.gethostname()
+                local_ip = socket.gethostbyname(hostname)
+                return local_ip
+            except Exception:
+                return "unknown"
         
     def on_connect(self, client, userdata, flags, rc):
         """연결 콜백"""
         if rc == 0:
             print(f"클라이언트 {self.client_id}가 서버 {self.broker_host}:{self.broker_port}에 연결되었습니다.")
+            print(f"로컬 IP: {self.local_ip}")
             self.connected = True
             self.connection_event.set()
         else:
@@ -137,23 +160,27 @@ class RemoteMQTTClient:
                         "temperature": round(20 + (time.time() % 10), 1),
                         "unit": "celsius",
                         "timestamp": time.time(),
-                        "source": self.client_id
+                        "source": self.client_id,
+                        "client_ip": self.local_ip
                     }),
                     json.dumps({
                         "humidity": round(50 + (time.time() % 20), 1),
                         "unit": "percent",
                         "timestamp": time.time(),
-                        "source": self.client_id
+                        "source": self.client_id,
+                        "client_ip": self.local_ip
                     }),
                     json.dumps({
                         "status": "online",
                         "timestamp": time.time(),
-                        "source": self.client_id
+                        "source": self.client_id,
+                        "client_ip": self.local_ip
                     }),
                     json.dumps({
                         "command": "ping",
                         "timestamp": time.time(),
-                        "source": self.client_id
+                        "source": self.client_id,
+                        "client_ip": self.local_ip
                     })
                 ]
                 
@@ -242,9 +269,24 @@ def remote_publisher_test():
         # 메시지 발행
         topics = ["sensor/temperature", "sensor/humidity", "device/status"]
         messages = [
-            '{"temperature": 25.5, "unit": "celsius", "source": "remote"}',
-            '{"humidity": 60.2, "unit": "percent", "source": "remote"}',
-            '{"status": "online", "timestamp": "' + str(time.time()) + '", "source": "remote"}'
+            json.dumps({
+                "temperature": 25.5,
+                "unit": "celsius",
+                "source": "remote",
+                "client_ip": publisher.local_ip
+            }),
+            json.dumps({
+                "humidity": 60.2,
+                "unit": "percent",
+                "source": "remote",
+                "client_ip": publisher.local_ip
+            }),
+            json.dumps({
+                "status": "online",
+                "timestamp": time.time(),
+                "source": "remote",
+                "client_ip": publisher.local_ip
+            })
         ]
         
         for i in range(10):
