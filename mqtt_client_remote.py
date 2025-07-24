@@ -13,6 +13,7 @@ class RemoteMQTTClient:
         # 연결 상태 추적
         self.connected = False
         self.connection_event = threading.Event()
+        self.running = False
         
         # 콜백 함수 설정
         self.client.on_connect = self.on_connect
@@ -74,6 +75,7 @@ class RemoteMQTTClient:
     
     def disconnect(self):
         """서버에서 연결 해제"""
+        self.running = False
         self.client.loop_stop()
         self.client.disconnect()
     
@@ -106,6 +108,90 @@ class RemoteMQTTClient:
         else:
             print("연결되지 않음")
             return None
+
+    def continuous_pubsub(self, publish_interval=5, subscribe_topics=None):
+        """지속적인 PUB/SUB 수행"""
+        if not self.connected:
+            print("연결되지 않음. 먼저 연결하세요.")
+            return
+        
+        self.running = True
+        
+        # 기본 구독 토픽
+        if subscribe_topics is None:
+            subscribe_topics = ["sensor/#", "device/#", "control/#"]
+        
+        # 토픽 구독
+        for topic in subscribe_topics:
+            self.subscribe(topic)
+        
+        print(f"지속적인 PUB/SUB 시작 (발행 간격: {publish_interval}초)")
+        print("Ctrl+C로 중지할 수 있습니다.")
+        
+        try:
+            while self.running:
+                # 메시지 발행
+                topics = ["sensor/temperature", "sensor/humidity", "device/status", "control/command"]
+                messages = [
+                    json.dumps({
+                        "temperature": round(20 + (time.time() % 10), 1),
+                        "unit": "celsius",
+                        "timestamp": time.time(),
+                        "source": self.client_id
+                    }),
+                    json.dumps({
+                        "humidity": round(50 + (time.time() % 20), 1),
+                        "unit": "percent",
+                        "timestamp": time.time(),
+                        "source": self.client_id
+                    }),
+                    json.dumps({
+                        "status": "online",
+                        "timestamp": time.time(),
+                        "source": self.client_id
+                    }),
+                    json.dumps({
+                        "command": "ping",
+                        "timestamp": time.time(),
+                        "source": self.client_id
+                    })
+                ]
+                
+                for i, topic in enumerate(topics):
+                    if self.running:
+                        self.publish(topic, messages[i])
+                
+                time.sleep(publish_interval)
+                
+        except KeyboardInterrupt:
+            print("\n사용자에 의해 중지되었습니다.")
+        finally:
+            self.running = False
+
+def continuous_pubsub_test():
+    """지속적인 PUB/SUB 테스트"""
+    # 서버 IP 주소를 입력받거나 기본값 사용
+    server_ip = input("서버 IP 주소를 입력하세요 (기본값: 192.168.0.76): ").strip()
+    if not server_ip:
+        server_ip = "192.168.0.76"
+    
+    # 발행 간격 입력
+    try:
+        interval = int(input("발행 간격(초)을 입력하세요 (기본값: 5): ").strip() or "5")
+    except ValueError:
+        interval = 5
+    
+    client = RemoteMQTTClient("continuous_client", server_ip, 1883)
+    
+    print("지속적인 PUB/SUB 테스트 시작...")
+    
+    if client.connect():
+        print("연결 성공! 지속적인 PUB/SUB을 시작합니다.")
+        client.continuous_pubsub(publish_interval=interval)
+        client.disconnect()
+        print("테스트 완료")
+    else:
+        print("연결에 실패했습니다.")
 
 def remote_subscriber_test():
     """원격 구독자 테스트"""
@@ -180,8 +266,9 @@ def main():
     print("1. 원격 구독자 테스트")
     print("2. 원격 발행자 테스트")
     print("3. 동시 테스트")
+    print("4. 지속적인 PUB/SUB 테스트")
     
-    choice = input("선택하세요 (1-3): ")
+    choice = input("선택하세요 (1-4): ")
     
     if choice == "1":
         remote_subscriber_test()
@@ -195,6 +282,8 @@ def main():
         
         time.sleep(2)  # 구독자가 준비될 때까지 대기
         remote_publisher_test()
+    elif choice == "4":
+        continuous_pubsub_test()
     else:
         print("잘못된 선택입니다.")
 
