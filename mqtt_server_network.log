@@ -1,2 +1,35 @@
 2025-07-24 16:36:02,242 - INFO - MQTT 서버가 0.0.0.0:1883에서 시작되었습니다.
 2025-07-24 16:36:02,242 - INFO - 다른 기기에서 접속하려면: 192.168.0.76:1883
+2025-07-24 17:39:44,901 - INFO - MQTT 서버가 0.0.0.0:1883에서 시작되었습니다.
+2025-07-24 17:39:44,901 - INFO - 다른 기기에서 접속하려면: 192.168.0.76:1883
+2025-07-24 17:39:51,295 - INFO - 새로운 클라이언트 연결: ('192.168.0.64', 52919)
+2025-07-24 17:39:51,297 - INFO - CONNECT: 프로토콜=MQTT, 레벨=4, 클라이언트ID=remote_subscriber
+2025-07-24 17:39:51,297 - INFO - 클라이언트 추가됨: remote_subscriber
+2025-07-24 17:39:51,297 - INFO - CONNACK 전송 완료
+2025-07-24 17:39:51,297 - INFO - 클라이언트 remote_subscriber 연결 성공
+2025-07-24 17:39:51,299 - INFO - 구독: remote_subscriber -> sensor/#
+2025-07-24 17:39:51,300 - INFO - SUBACK 전송 완료
+2025-07-24 17:39:51,300 - INFO - SUBSCRIBE: 토픽=sensor/#, QoS=0
+2025-07-24 17:39:51,301 - INFO - 구독: remote_subscriber -> device/#
+2025-07-24 17:39:51,302 - INFO - SUBACK 전송 완료
+2025-07-24 17:39:51,302 - INFO - SUBSCRIBE: 토픽=device/#, QoS=0
+2025-07-24 17:39:52,424 - INFO - 새로운 클라이언트 연결: ('192.168.0.64', 49599)
+2025-07-24 17:39:52,425 - INFO - CONNECT: 프로토콜=MQTT, 레벨=4, 클라이언트ID=remote_publisher
+2025-07-24 17:39:52,425 - INFO - 클라이언트 추가됨: remote_publisher
+2025-07-24 17:39:52,425 - INFO - CONNACK 전송 완료
+2025-07-24 17:39:52,425 - INFO - 클라이언트 remote_publisher 연결 성공
+2025-07-24 17:39:52,427 - INFO - PUBLISH: 토픽=sensor/temperature, 메시지={"temperature": 25.5, "unit": "celsius", "source": "remote"}
+2025-07-24 17:39:54,431 - INFO - PUBLISH: 토픽=sensor/humidity, 메시지={"humidity": 60.2, "unit": "percent", "source": "remote"}
+2025-07-24 17:39:56,432 - INFO - PUBLISH: 토픽=device/status, 메시지={"status": "online", "timestamp": "1753346392.6599574", "source": "remote"}
+2025-07-24 17:39:58,433 - INFO - PUBLISH: 토픽=sensor/temperature, 메시지={"temperature": 25.5, "unit": "celsius", "source": "remote"}
+2025-07-24 17:40:00,433 - INFO - PUBLISH: 토픽=sensor/humidity, 메시지={"humidity": 60.2, "unit": "percent", "source": "remote"}
+2025-07-24 17:40:02,434 - INFO - PUBLISH: 토픽=device/status, 메시지={"status": "online", "timestamp": "1753346392.6599574", "source": "remote"}
+2025-07-24 17:40:04,435 - INFO - PUBLISH: 토픽=sensor/temperature, 메시지={"temperature": 25.5, "unit": "celsius", "source": "remote"}
+2025-07-24 17:40:06,435 - INFO - PUBLISH: 토픽=sensor/humidity, 메시지={"humidity": 60.2, "unit": "percent", "source": "remote"}
+2025-07-24 17:40:08,436 - INFO - PUBLISH: 토픽=device/status, 메시지={"status": "online", "timestamp": "1753346392.6599574", "source": "remote"}
+2025-07-24 17:40:10,436 - INFO - PUBLISH: 토픽=sensor/temperature, 메시지={"temperature": 25.5, "unit": "celsius", "source": "remote"}
+2025-07-24 17:40:12,442 - INFO - 클라이언트 remote_publisher 연결 해제
+2025-07-24 17:40:12,442 - INFO - 클라이언트 제거됨: remote_publisher
+2025-07-24 17:40:12,549 - ERROR - 패킷 헤더 읽기 오류: 연결이 끊어졌습니다
+2025-07-24 17:40:12,549 - ERROR - 클라이언트 ('192.168.0.64', 52919) 처리 중 오류: 연결이 끊어졌습니다
+2025-07-24 17:40:12,549 - INFO - 클라이언트 제거됨: remote_subscriber
